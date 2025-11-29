@@ -1,73 +1,58 @@
+define BUFFERSIZE 10
 #include <stdio.h>
 #include <stdlib.h>
-
+int mutex, n, empty, full=0, item, item1;
 int buffer[20];
-int n;
-int in = 0, out = 0;
-
-// Semaphores
-int mutex = 1;
-int empty;
-int full = 0;
-
-// Semaphore WAIT
-void wait(int *s)
+int in=0, out=0, mutex=1;
+void wait(int s)
 {
-    while (*s <= 0);   // busy wait
-    (*s)--;
-}
-
-// Semaphore SIGNAL
-void signal(int *s)
+while(s<0)
 {
-    (*s)++;
+printf("\nCannot add an item\n");
+exit(0);
 }
-
+s--;
+}
+void signal(int s)
+{
+s++;
+}
 void producer()
 {
-    int item;
-    while (in < n)
-    {
-        wait(&empty);
-        wait(&mutex);
-
-        printf("Enter an item: ");
-        scanf("%d", &item);
-
-        buffer[in] = item;
-        in++;
-
-        signal(&mutex);
-        signal(&full);
-    }
+do
+{
+wait (empty);
+wait(mutex);
+printf("\nEnter an item:");
+scanf("%d",&item);
+buffer[in]=item;
+in=in+1;
+signal(mutex);
+signal(full);
 }
-
+while(in<n);
+}
 void consumer()
 {
-    int item;
-    while (out < n)
-    {
-        wait(&full);
-        wait(&mutex);
-
-        item = buffer[out];
-        printf("Consumed item = %d\n", item);
-        out++;
-
-        signal(&mutex);
-        signal(&empty);
-    }
-}
-
-int main()
+do
 {
-    printf("Enter the value of n: ");
-    scanf("%d", &n);
-
-    empty = n;
-
-    producer();
-    consumer();
-
-    return 0;
+wait(full);
+wait(mutex);
+item1=buffer[out];
+printf("\n Consumed item =%d\n",item1);
+out=out+1;
+signal(mutex);
+signal(empty);
+}
+while(out<n);
+}
+void main()
+{
+printf("Enter the value of n:");
+scanf("%d",&n);
+empty=n;
+while(in<n)
+producer();
+while(in!=out)
+consumer();
 }
