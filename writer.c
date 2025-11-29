@@ -6,33 +6,44 @@
 #define BUFFER_SIZE 1024
 
 int main() {
+
+    // Generate unique key
     key_t key = ftok("shmfile", 65);
     if (key == -1) {
-        perror("ftok");
+        printf("Error: ftok failed\n");
         exit(1);
     }
 
+    // Create shared memory segment
     int shmid = shmget(key, BUFFER_SIZE, 0666 | IPC_CREAT);
     if (shmid == -1) {
-        perror("shmget");
+        printf("Error: shmget failed\n");
         exit(1);
     }
 
+    // Attach shared memory
     char *str = (char *)shmat(shmid, NULL, 0);
     if (str == (char *)(-1)) {
-        perror("shmat");
+        printf("Error: shmat failed\n");
         exit(1);
     }
 
+    // Write data
     printf("Write Data: ");
     fgets(str, BUFFER_SIZE, stdin);
 
+    // Display data
     printf("Data written in memory: %s\n", str);
 
+    // Detach memory
     if (shmdt(str) == -1) {
-        perror("shmdt");
+        printf("Error: shmdt failed\n");
         exit(1);
     }
+
+    return 0;
+}
+
   -------------------------------------------------------------------------
     #include <stdio.h>
 #include <sys/ipc.h>
