@@ -1,58 +1,60 @@
-define BUFFERSIZE 10
+#define BUFFERSIZE 10
 #include <stdio.h>
-#include <stdlib.h>
-int mutex, n, empty, full=0, item, item1;
+#include<stdio.h>
+
+int n,item ,item1;
+int mutex,empty,full=0;
+int in,out;
 int buffer[20];
-int in=0, out=0, mutex=1;
-void wait(int s)
-{
-while(s<0)
-{
-printf("\nCannot add an item\n");
-exit(0);
+
+void wait(int s){
+    while(s<0);
+    s--;
 }
-s--;
+
+void signall(int s){
+    s++;
 }
-void signal(int s)
-{
-s++;
+
+
+void producer(){
+    do{
+        wait(empty);
+        wait(mutex);
+        printf("Enter the items");
+        scanf("%d",&item);
+        buffer[in] = item;
+        in=in+1;
+        signall(mutex);
+        signall(full);
+    }
+    while(in<n);
 }
-void producer()
-{
-do
-{
-wait (empty);
-wait(mutex);
-printf("\nEnter an item:");
-scanf("%d",&item);
-buffer[in]=item;
-in=in+1;
-signal(mutex);
-signal(full);
+
+
+void consumer(){
+    do{
+        wait(full);
+        wait(mutex);
+        item1=buffer[out];
+        printf("The consumed is %d\n",item1);
+        out=out+1;
+        signall(mutex);
+        signall(empty);
+        
+    }
+    while(out<n);
 }
-while(in<n);
-}
-void consumer()
-{
-do
-{
-wait(full);
-wait(mutex);
-item1=buffer[out];
-printf("\n Consumed item =%d\n",item1);
-out=out+1;
-signal(mutex);
-signal(empty);
-}
-while(out<n);
-}
-void main()
-{
-printf("Enter the value of n:");
-scanf("%d",&n);
-empty=n;
-while(in<n)
-producer();
-while(in!=out)
-consumer();
+
+void main(){
+    printf("Enter the value of n");
+    scanf("%d", &n);
+    empty=n;
+    
+    while(in<n){
+        producer();
+    }
+    while(in!=out){
+        consumer();
+    }
 }
