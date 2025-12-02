@@ -48,6 +48,8 @@ int main() {
             printf("\tPF No. %d", pf);
 
         printf("\n");
+        if (count == f)
+        count = 0;
     }
 
     printf("\nTotal Page Faults using FIFO = %d\n", pf);
